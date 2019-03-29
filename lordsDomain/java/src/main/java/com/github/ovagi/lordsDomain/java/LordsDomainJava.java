@@ -9,6 +9,8 @@ public class LordsDomainJava {
   public static void main (String[] args) {
     LWJGLPlatform.Config config = new LWJGLPlatform.Config();
     // use config to customize the Java platform, if needed
+    config.height = 800;
+    config.width = 1280;
     LWJGLPlatform plat = new LWJGLPlatform(config);
     new LordsDomain(plat);
     plat.start();

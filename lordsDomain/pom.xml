@@ -24,10 +24,6 @@
       <modules><module>java</module></modules>
     </profile>
     <profile>
-      <id>android</id>
-      <modules><module>android</module></modules>
-    </profile>
-    <profile>
       <id>robosim</id>
       <modules><module>robovm</module></modules>
     </profile>
