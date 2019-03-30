@@ -85,7 +85,7 @@ public class Map extends GroupLayer {
         Canvas tileSet = lordsDomain.plat.graphics().createCanvas(size);
         tileSet
                 //Fill in Shape
-                .setFillColor(Color.GREEN.hashCode()).fillRect(100, 100, 100, 100);
+                .setFillColor(Color.GREEN.hashCode()).fillRect(0, 0, 100, 100);
 //                //Outline shape
 //                .setStrokeColor(Color.BLACK.hashCode()).setStrokeWidth(2).strokeRect(0, 0, cellSize.width, cellSize.height);
 
@@ -94,11 +94,11 @@ public class Map extends GroupLayer {
 
         onDisposed(tileSetTextures.disposeSlot());
 
-        groupLayer.addAt(new ImageLayer(tile), 300, 300);
+        groupLayer.addAt(new ImageLayer(tile).setOrigin(Origin.CENTER), 300, 300);
 
-        for (Cell cell : cells) {
-            setPiece(cell.getCellCenter(), cell);
-        }
+//        for (Cell cell : cells) {
+//            setPiece(cell.getCellCenter(), cell);
+//        }
 
         addAt(groupLayer, size.width() / 2, size.height() / 2);
     }
@@ -113,6 +113,7 @@ public class Map extends GroupLayer {
 
     private ImageLayer addCell(Cord at, Cell cell) {
         ImageLayer pview = new ImageLayer(tile);
+        pview.setOrigin(Origin.CENTER);
         groupLayer.addAt(pview, cell.getCellCenter().x, cell.getCellCenter().y);
         return pview;
     }
