@@ -1,19 +1,29 @@
 package com.github.ovagi.lordsDomain.core.Map.Terrain;
 
 import com.github.ovagi.lordsDomain.core.Map.Cord;
+import playn.core.Tile;
 
+import java.awt.*;
 import java.util.List;
 
 public class Cell {
 
     private Cord cellCenter;
     private List<Cell> neighboringCells;
+    private TerrainTypes terrainType;
+    private Color color;
+    private Tile tile;
 
     public Cell (Cord cellCenter) {
         this.cellCenter = cellCenter;
     }
 
     public Cell (Cord cellCenter, List<Cell> neighboringCells) {
+        this.cellCenter = cellCenter;
+        this.neighboringCells = neighboringCells;
+    }
+
+    public Cell (Cord cellCenter, List<Cell> neighboringCells, TerrainTypes terrainType) {
         this.cellCenter = cellCenter;
         this.neighboringCells = neighboringCells;
     }
@@ -33,5 +43,36 @@ public class Cell {
 
     public void setNeighboringCells(List<Cell> neighboringCells) {
         this.neighboringCells = neighboringCells;
+    }
+
+    public Color getColor() {
+        if(color == null) {
+            color = Terrain.getColor(terrainType);
+        }
+        return color;
+    }
+
+    public void setColor(Color color) {
+        this.color = color;
+    }
+
+    public Tile getTile() {
+        return tile;
+    }
+
+    public void setTerrainType(TerrainTypes terrainType) {
+        this.terrainType = terrainType;
+    }
+
+    public void close() {
+        tile.texture().close();
+    }
+
+    public TerrainTypes getTerrainType() {
+        return terrainType;
+    }
+
+    public void setTile(Tile tile) {
+        this.tile = tile;
     }
 }

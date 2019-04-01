@@ -2,6 +2,8 @@ package com.github.ovagi.lordsDomain.core.Map;
 
 import com.github.ovagi.lordsDomain.core.LordsDomain;
 import com.github.ovagi.lordsDomain.core.Map.Terrain.Cell;
+import com.github.ovagi.lordsDomain.core.Map.Terrain.Terrain;
+import com.github.ovagi.lordsDomain.core.Map.Terrain.TerrainTypes;
 import org.jetbrains.annotations.NotNull;
 import playn.core.Canvas;
 import playn.core.Surface;
@@ -30,23 +32,20 @@ public class Map extends GroupLayer {
     private ArrayList<Cell> cells;
 
     private final LordsDomain lordsDomain;
-    private final Tile tile;
+    private final Terrain terrain;
 
     public Map(LordsDomain lordsDomain, @NotNull IDimension size) {
         this.lordsDomain = lordsDomain;
 
         cells = new ArrayList<>();
-
-        int halfOfCellWidth = (int) size.width() / NUMBER_OF_CELLS_ROW / 2;
-        int halfOfCellHeight = (int) size.height() / NUMBER_OF_CELLS_COLUMN / 2;
         cellSize = new Dimension(size.width() / NUMBER_OF_CELLS_ROW, size.height() / NUMBER_OF_CELLS_COLUMN);
 
-        for (int i = 0; i < NUMBER_OF_CELLS_ROW; i++) {
-            for (int j = 0; j < NUMBER_OF_CELLS_COLUMN; j++) {
+        for (int i = 0; i < NUMBER_OF_CELLS_COLUMN; i++) {
+            for (int j = 0; j < NUMBER_OF_CELLS_ROW; j++) {
                 cells.add(new Cell(
                         new Cord(
-                                (int) size.width() / NUMBER_OF_CELLS_ROW * i + halfOfCellWidth,
-                                (int) size.height() / NUMBER_OF_CELLS_COLUMN * j + halfOfCellHeight))
+                                (int) size.width() / NUMBER_OF_CELLS_ROW * i,
+                                (int) size.height() / NUMBER_OF_CELLS_COLUMN * j))
                 );
             }
         }
@@ -80,40 +79,31 @@ public class Map extends GroupLayer {
                 }
             }
         }
+        Canvas canvas = lordsDomain.plat.graphics().createCanvas(size);
 
-        //For now draw a single tile.
-        Canvas tileSet = lordsDomain.plat.graphics().createCanvas(size);
-        tileSet
-                //Fill in Shape
-                .setFillColor(Color.GREEN.hashCode()).fillRect(100, 100, 100, 100);
-//                //Outline shape
-//                .setStrokeColor(Color.BLACK.hashCode()).setStrokeWidth(2).strokeRect(0, 0, cellSize.width, cellSize.height);
-
-        Texture tileSetTextures = tileSet.toTexture(Texture.Config.UNMANAGED);
-        tile = tileSetTextures.tile(0, 0, cellSize.width, cellSize.height);
-
-        onDisposed(tileSetTextures.disposeSlot());
-
-        groupLayer.addAt(new ImageLayer(tile), 300, 300);
+        terrain = new Terrain(canvas, cellSize);
+        onDisposed(terrain.onDisposed());
 
         for (Cell cell : cells) {
+            cell.setTerrainType(TerrainTypes.values()[ThreadLocalRandom.current().nextInt(TerrainTypes.values().length)]);
+            cell.setTile(terrain.getTile(cell.getTerrainType()));
             setPiece(cell.getCellCenter(), cell);
         }
 
-        addAt(groupLayer, size.width() / 2, size.height() / 2);
+        addAt(groupLayer, 0, 0);
     }
 
     @Override
     public void close() {
         super.close();
-        tile.texture().close();
+        cells.forEach(Cell::close);
     }
 
     private final java.util.Map<Cord, ImageLayer> pviews = new HashMap<>();
 
     private ImageLayer addCell(Cord at, Cell cell) {
-        ImageLayer pview = new ImageLayer(tile);
-        groupLayer.addAt(pview, cell.getCellCenter().x, cell.getCellCenter().y);
+        ImageLayer pview = new ImageLayer(cell.getTile());
+        groupLayer.addAt(pview, cell.getCellCenter().x(), cell.getCellCenter().y());
         return pview;
     }
 
@@ -122,7 +112,7 @@ public class Map extends GroupLayer {
         if (pview == null) {
             pviews.put(at, addCell(at, cell));
         } else {
-            pview.setTile(tile);
+            pview.setTile(cell.getTile());
         }
     }
 
