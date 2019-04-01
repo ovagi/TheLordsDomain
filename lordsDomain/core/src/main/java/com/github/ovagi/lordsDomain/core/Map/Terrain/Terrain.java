@@ -11,6 +11,7 @@ import pythagoras.f.IDimension;
 import react.SignalView;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 
 public class Terrain {
@@ -18,13 +19,11 @@ public class Terrain {
     private final Texture tileSetTextures;
     private final playn.core.Canvas tileSet;
     private final Dimension cellSize;
+    private HeightMap heightMap;
 
     public Terrain(playn.core.Canvas canvas, Dimension cellSize) {
         this.cellSize = cellSize;
         this.tileSet = canvas;
-
-        System.out.println(cellSize);
-        System.out.println(canvas);
 
         for (int i = 0; i < TerrainTypes.values().length; i++) {
             tileSet
@@ -36,9 +35,14 @@ public class Terrain {
 
 
         tileSetTextures = tileSet.toTexture(Texture.Config.UNMANAGED);
+        heightMap = new HeightMap();
     }
 
     public static Color getColor(TerrainTypes terrainType) {
+        if(terrainType == null) {
+            return null;
+        }
+
         switch (terrainType) {
             case GRASSLANDS:
                 return Color.GREEN;
@@ -87,6 +91,20 @@ public class Terrain {
 
     public SignalView.Listener<? super Layer> onDisposed() {
         return tileSetTextures.disposeSlot();
+    }
+
+    public void generateBasicTerrain(ArrayList<Cell> cells) {
+        heightMap.generateHeightMap(cells, cellSize);
+        for (Cell cell: cells) {
+            cell.setColor(
+                    new Color(
+                            cell.getColor().getRed(),
+                            cell.getColor().getGreen(),
+                            cell.getColor().getBlue(),
+                            cell.getElevation() / HeightMap.MAX_HEIGHT * cell.getColor().getAlpha()
+                    )
+            );
+        }
     }
 }
 

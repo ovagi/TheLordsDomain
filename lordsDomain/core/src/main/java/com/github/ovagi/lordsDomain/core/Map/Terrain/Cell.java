@@ -11,6 +11,7 @@ public class Cell {
     private Cord cellCenter;
     private List<Cell> neighboringCells;
     private TerrainTypes terrainType;
+    private int elevation;
     private Color color;
     private Tile tile;
 
@@ -74,5 +75,13 @@ public class Cell {
 
     public void setTile(Tile tile) {
         this.tile = tile;
+    }
+
+    public int getElevation() {
+        return elevation;
+    }
+
+    public void setElevation(int elevation) {
+        this.elevation = elevation;
     }
 }

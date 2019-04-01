@@ -81,13 +81,19 @@ public class Map extends GroupLayer {
         }
         Canvas canvas = lordsDomain.plat.graphics().createCanvas(size);
 
+        cells.forEach(cell -> cell.setTerrainType(TerrainTypes.GRASSLANDS));
+
         terrain = new Terrain(canvas, cellSize);
+        terrain.generateBasicTerrain(cells);
+
         onDisposed(terrain.onDisposed());
 
         for (Cell cell : cells) {
-            cell.setTerrainType(TerrainTypes.values()[ThreadLocalRandom.current().nextInt(TerrainTypes.values().length)]);
+//            cell.setTerrainType(TerrainTypes.values()[ThreadLocalRandom.current().nextInt(TerrainTypes.values().length)]);
             cell.setTile(terrain.getTile(cell.getTerrainType()));
             setPiece(cell.getCellCenter(), cell);
+            System.out.println(cell.getElevation());
+            System.out.println(cell.getColor().getAlpha());
         }
 
         addAt(groupLayer, 0, 0);
