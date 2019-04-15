@@ -4,41 +4,34 @@ import com.github.ovagi.lordsDomain.core.LordsDomain;
 import com.github.ovagi.lordsDomain.core.Map.Terrain.Cell;
 import com.github.ovagi.lordsDomain.core.Map.Terrain.Terrain;
 import com.github.ovagi.lordsDomain.core.Map.Terrain.TerrainTypes;
+import com.github.ovagi.lordsDomain.core.Map.Terrain.WaterBodies;
 import org.jetbrains.annotations.NotNull;
 import playn.core.Canvas;
-import playn.core.Surface;
-import playn.core.Texture;
-import playn.core.Tile;
 import playn.scene.GroupLayer;
 import playn.scene.ImageLayer;
-import playn.scene.Layer;
 import pythagoras.f.Dimension;
 import pythagoras.f.IDimension;
 
-import java.awt.*;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Map extends GroupLayer {
 
-    public static final int NUMBER_OF_CELLS = 10000;
-    public static final int NUMBER_OF_CELLS_ROW = 100;
-    public static final int NUMBER_OF_CELLS_COLUMN = NUMBER_OF_CELLS / NUMBER_OF_CELLS_ROW;
+    public static final boolean DRAWING_WATER_SHED = false;
+
+    public static final int NUMBER_OF_CELLS_ROW = 128;
+    public static final int NUMBER_OF_CELLS_COLUMN = 128;
+    public static final int NUMBER_OF_CELLS = NUMBER_OF_CELLS_ROW * NUMBER_OF_CELLS_COLUMN;
     public static final float LINE_WIDTH = 2;
-    public Dimension cellSize;
+
     private final GroupLayer groupLayer = new GroupLayer();
     private ArrayList<Cell> cells;
 
-    private final LordsDomain lordsDomain;
-    private final Terrain terrain;
-
     public Map(LordsDomain lordsDomain, @NotNull IDimension size) {
-        this.lordsDomain = lordsDomain;
 
         cells = new ArrayList<>();
-        cellSize = new Dimension(size.width() / NUMBER_OF_CELLS_ROW, size.height() / NUMBER_OF_CELLS_COLUMN);
+        Dimension cellSize = new Dimension(size.width() / NUMBER_OF_CELLS_ROW, size.height() / NUMBER_OF_CELLS_COLUMN);
 
         for (int i = 0; i < NUMBER_OF_CELLS_COLUMN; i++) {
             for (int j = 0; j < NUMBER_OF_CELLS_ROW; j++) {
@@ -83,18 +76,26 @@ public class Map extends GroupLayer {
 
         cells.forEach(cell -> cell.setTerrainType(TerrainTypes.GRASSLANDS));
 
-        terrain = new Terrain(canvas, cellSize);
+        Terrain terrain = new Terrain(canvas, cellSize);
         terrain.generateBasicTerrain(cells);
+        WaterBodies waterBodies = new WaterBodies(cells);
 
         onDisposed(terrain.onDisposed());
+        if (DRAWING_WATER_SHED) {
+            for (Cell cell : cells) {
+                //cell.setTerrainType(TerrainTypes.values()[ThreadLocalRandom.current().nextInt(TerrainTypes.values().length)]);
 
-        for (Cell cell : cells) {
-//            cell.setTerrainType(TerrainTypes.values()[ThreadLocalRandom.current().nextInt(TerrainTypes.values().length)]);
-            cell.setTile(terrain.getTile(cell.getTerrainType()));
-            setPiece(cell.getCellCenter(), cell);
-            System.out.println(cell.getElevation());
-            System.out.println(cell.getColor().getAlpha());
+                cell.setTile(terrain.getTile(cell.getTerrainType().equals(TerrainTypes.RIVER) ? TerrainTypes.RIVER : TerrainTypes.DESERT, cell.getWaterFill()));
+                setPiece(cell.getCellCenter(), cell);
+            }
+        } else {
+            for (Cell cell : cells) {
+                //cell.setTerrainType(TerrainTypes.values()[ThreadLocalRandom.current().nextInt(TerrainTypes.values().length)]);
+                cell.setTile(terrain.getTile(cell.getTerrainType(), cell.getElevation()));
+                setPiece(cell.getCellCenter(), cell);
+            }
         }
+
 
         addAt(groupLayer, 0, 0);
     }

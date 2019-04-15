@@ -11,7 +11,7 @@ public class LordsDomain extends SceneGame {
     public final IDimension size;
 
     public LordsDomain(Platform plat) {
-        super(plat, 33); // update our "simulation" 33ms (30 times per second)
+        super(plat, 1000); // update our "simulation" 33ms (30 times per second)
 
 
         // figure out how big the game view is

@@ -5,15 +5,19 @@ import playn.core.Tile;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Set;
 
 public class Cell {
 
     private Cord cellCenter;
     private List<Cell> neighboringCells;
     private TerrainTypes terrainType;
-    private int elevation;
+    private double elevation;
+    private double waterFill;
+    private boolean drains;
     private Color color;
     private Tile tile;
+    private Set<Cell> drainsIntoMe;
 
     public Cell (Cord cellCenter) {
         this.cellCenter = cellCenter;
@@ -77,11 +81,35 @@ public class Cell {
         this.tile = tile;
     }
 
-    public int getElevation() {
+    public double getElevation() {
         return elevation;
     }
 
-    public void setElevation(int elevation) {
+    public void setElevation(double elevation) {
         this.elevation = elevation;
+    }
+
+    public double getWaterFill() {
+        return waterFill;
+    }
+
+    public void setWaterFill(double waterFill) {
+        this.waterFill = waterFill;
+    }
+
+    public boolean isDrains() {
+        return drains;
+    }
+
+    public void setDrains(boolean drains) {
+        this.drains = drains;
+    }
+
+    public Set<Cell> getDrainsIntoMe() {
+        return drainsIntoMe;
+    }
+
+    public void setDrainsIntoMe(Set<Cell> drainsIntoMe) {
+        this.drainsIntoMe = drainsIntoMe;
     }
 }

@@ -1,104 +1,103 @@
 package com.github.ovagi.lordsDomain.core.Map.Terrain;
 
-import com.github.ovagi.lordsDomain.core.Map.Cord;
-import com.github.ovagi.lordsDomain.core.Map.Map;
-import playn.core.Event;
-import playn.core.Surface;
-import playn.scene.Layer;
-import pythagoras.f.IDimension;
-
-import java.awt.*;
-import java.util.ArrayList;
-import java.util.Comparator;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
-public class WaterBodies extends Layer {
+import static com.github.ovagi.lordsDomain.core.Map.Map.DRAWING_WATER_SHED;
 
-    public static final int WATER_BODY_COMPLEXITY = 100;
+//https://medium.com/universe-factory/how-i-generated-artificial-rivers-on-imaginary-continents-747df12c5d4c
 
-    private final River river;
-    private final ArrayList<Lake> lake;
+public class WaterBodies {
 
-    public WaterBodies(IDimension size) {
-        lake = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            lake.add(new Lake(size, i));
-        }
+    private static final int NUMBER_OF_RIVERS = 5;
+    public static final float OCEAN_HEIGHT = (float) ThreadLocalRandom.current().nextDouble(0, 1.0 / 3.0);
+    private static final int MAX_RIVER_LENGTH = 25;
+    private static final int MAX_TIME_STEP = 100;
+    private static final double RIVER_HEIGHT = (float) ThreadLocalRandom.current().nextDouble(3.0 / 10.0, 4.0 / 10.0);
 
-        river = new River(size);
-    }
-
-    @Override
-    protected void paintImpl(Surface surface) {
-        surface.setFillColor(Color.BLUE.hashCode());
-
-        if (lake != null) {
-            for (Lake myLake: lake) {
-                myLake.paintImpl(surface);
-            }
-        }
-
-        if (river != null) {
-            river.paintImpl(surface);
-        }
-    }
-
-    private class Lake extends Layer {
-
-        private Cord lakeCenter;
-        private int lakeSize;
-
-        private ArrayList<Cord> lakeBorder;
-
-        public Lake(IDimension size, int waterBodyComplexity) {
-            lakeCenter = new Cord(ThreadLocalRandom.current().nextInt((int) size.width()), ThreadLocalRandom.current().nextInt((int) size.height()));
-            lakeSize = 100;//ThreadLocalRandom.current().nextInt((int) Math.min(size.height(), size.width()));
-            lakeBorder = new ArrayList<>();
-            this.generate(size, waterBodyComplexity);
-        }
-
-        public void generate(IDimension size, int waterBodyComplexity) {
-            while (lakeBorder.size() < waterBodyComplexity) {
-                lakeBorder.add(new Cord(
-                        lakeCenter.x + ThreadLocalRandom.current().nextInt(-lakeSize, lakeSize),
-                        lakeCenter.y + ThreadLocalRandom.current().nextInt(-lakeSize, lakeSize)
-                        ));
-            }
+    public WaterBodies(ArrayList<Cell> cells) {
 
 
-            lakeBorder.sort((point1, point2) ->
-                (int) (
-                Math.toDegrees(Math.atan2(lakeCenter.y - point2.y, lakeCenter.x - point2.x)) -
-                Math.toDegrees(Math.atan2(lakeCenter.y - point1.y, lakeCenter.x - point1.x)))
+        //Rivers
+//        elev = a 2-d numeric array
+        System.out.println("LOG: Starting River Generation");
+        cells.forEach(cell -> cell.setDrainsIntoMe(new HashSet<>()));
+        cells.forEach(cell -> cell.setWaterFill(cell.getElevation()));
+        double maxDrains = 0;
 
-            );
-        }
 
-        protected void paintImpl(Surface surface) {
-            for (int i = 0; i < lakeBorder.size(); i++) {
-                if (i == lakeBorder.size() - 1) {
-                    surface.drawLine(lakeBorder.get(i), lakeBorder.get(0), Map.LINE_WIDTH);
-                } else {
-                    surface.drawLine(lakeBorder.get(i), lakeBorder.get(i + 1), Map.LINE_WIDTH);
+        //Find Spawn Point of River
+            //First find border cells
+        Cell randomBroder = getRandomCell(cells.parallelStream().filter(cell -> cell.getNeighboringCells().size() < 8).collect(Collectors.toCollection(ArrayList::new)));
+        randomBroder
+
+
+        //Find End Point of River
+
+        //
+
+        for (Cell cell : cells) {
+            boolean draining = false;
+            do {
+                Cell min = cell.getNeighboringCells().parallelStream().min(Comparator.comparingDouble(Cell::getElevation)).orElse(null);
+                if (min != null) {
+                    if (min.getElevation() < cell.getElevation()) {
+                        min.getDrainsIntoMe().add(cell);
+                        min.getDrainsIntoMe().addAll(cell.getDrainsIntoMe());
+                        if (min.getDrainsIntoMe().size() > maxDrains) {
+                            maxDrains = min.getDrainsIntoMe().size();
+                        }
+                        cell = min;
+                        draining = true;
+
+                    } else {
+                        System.out.println("DEBUG: Found Non-Draining Cell");
+                        draining = false;
+                    }
                 }
+            } while (draining);
+        }
+
+        for (Cell cell: cells) {
+            cell.setWaterFill(cell.getDrainsIntoMe().size() / maxDrains);
+            if(cell.getWaterFill() > RIVER_HEIGHT) {
+                cell.setTerrainType(TerrainTypes.RIVER);
             }
         }
+
+        System.out.println("LOG: Ending River Generation");
+//        for every cell
+//        find neighboring cells and store fill values
+//        set neighbor values to NULL where drain = 0
+//        get max neighbor value
+//        if max is higher than self fill
+//        set fill to max
+//        set drains to 1
+//        output fill
+        //output fill
+
+        //        //Oceans
+        cells.parallelStream().forEach(cell -> {
+            if (cell.getElevation() < OCEAN_HEIGHT) {
+                cell.setTerrainType(TerrainTypes.OCEAN);
+            }
+        });
+
     }
 
-    private class River extends Layer {
-
-        public River(IDimension size) {
-
+    private Cell getRandomCell(ArrayList<Cell> cells) {
+        if (cells == null) {
+            return null;
         }
 
-        public void generate() {
+        if (cells.isEmpty()) {
+            return null;
         }
 
-        @Override
-        protected void paintImpl(Surface surface) {
+        return cells.get(ThreadLocalRandom.current().nextInt(cells.size()));
 
-        }
     }
-
 
 }
