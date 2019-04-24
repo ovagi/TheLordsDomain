@@ -54,25 +54,45 @@ public class WaterBodies {
             }
             end = getRandomCell(cells.parallelStream().filter(cell -> cell.getNeighboringCells().size() < 4).collect(Collectors.toCollection(ArrayList::new)));
             checking = false;
-        }while (foundEnd);
+        } while (foundEnd);
 
         end.setTerrainType(TerrainTypes.RIVER);
 
-        do {
-            start = start.getNeighboringCells().parallelStream()
-                    .filter(cell -> cell.getNeighboringCells().size() < 4 && !cell.getTerrainType().equals(TerrainTypes.RIVER))
-                    .min(Comparator.comparingDouble(Cell::getElevation))
-            .orElse(null);
+        boolean notFinished;
 
-            if(start == null) {
-                throw new RuntimeException("Start can not be null");
+        int timeStamp = 0;
+
+        System.out.println("Max Timestamp = " + MAX_RIVER_LENGTH);
+
+        Cell temp = start;
+
+        do {
+            Cell finalEnd = end;
+
+            Cell temp2 = temp;
+
+            temp = temp.getNeighboringCells().stream()
+                    .filter(cell -> cell.getTerrainType().equals(TerrainTypes.RIVER))
+                    .min(((o1, o2) -> (int) (o1.getElevation() - o2.getElevation())))
+                    .orElse(getRandomCell(new ArrayList<>(temp.getNeighboringCells().stream().filter(cell -> !cell.getTerrainType().equals(TerrainTypes.RIVER)).collect(Collectors.toCollection(ArrayList::new)))));
+
+            if(temp == null) {
+                temp = getRandomCell(new ArrayList<>(temp2.getNeighboringCells()));
             }
 
-            start.setTerrainType(TerrainTypes.RIVER);
-        } while(!start.equals(end));
+            System.out.println("Cell Terrain is: " + temp.getTerrainType());
+
+            temp.setTerrainType(TerrainTypes.RIVER);
+
+            notFinished = temp.getNeighboringCells().parallelStream().noneMatch(cell -> cell.equals(finalEnd));
+
+            timeStamp++;
+
+            System.out.println("timeStamp = " + timeStamp);
+
+        } while (notFinished && timeStamp != MAX_RIVER_LENGTH);
 
         System.out.println("LOG: Ending River Generation");
-        //output fill
 
         //Oceans
 //        cells.parallelStream().forEach(cell -> {
