@@ -1,46 +1,64 @@
 package com.github.ovagi.lordsDomain.core.Map.Terrain;
 
 import com.github.ovagi.lordsDomain.core.Map.Cord;
+import org.jetbrains.annotations.NotNull;
 import playn.core.Tile;
 
 import java.awt.*;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
-public class Cell {
+public class Cell implements Comparable {
 
-    private Cord cellCenter;
+    private static double width;
+    private static double height;
+    private Cord cord;
     private List<Cell> neighboringCells;
     private TerrainTypes terrainType;
     private double elevation;
     private double waterFill;
-    private boolean drains;
+    private boolean isWater;
     private Color color;
     private Tile tile;
     private Cell drainsIntoMe;
 
-    public Cell (Cord cellCenter) {
-        this.cellCenter = cellCenter;
+    public Cell (Cord cord) {
+        this.cord = cord;
     }
 
-    public Cell (Cord cellCenter, List<Cell> neighboringCells) {
-        this.cellCenter = cellCenter;
+    public Cell (Cord cord, List<Cell> neighboringCells) {
+        this.cord = cord;
         this.neighboringCells = neighboringCells;
     }
 
-    public Cell (Cord cellCenter, List<Cell> neighboringCells, TerrainTypes terrainType) {
-        this.cellCenter = cellCenter;
+    public Cell (Cord cord, List<Cell> neighboringCells, TerrainTypes terrainType) {
+        this.cord = cord;
         this.neighboringCells = neighboringCells;
     }
 
-
-    public Cord getCellCenter() {
-        return cellCenter;
+    public static double getWidth() {
+        return width;
     }
 
-    public void setCellCenter(Cord cellCenter) {
-        this.cellCenter = cellCenter;
+    public static void setWidth(double width) {
+        Cell.width = width;
+    }
+
+    public static double getHeight() {
+        return height;
+    }
+
+    public static void setHeight(double height) {
+        Cell.height = height;
+    }
+
+
+    public Cord getCord() {
+        return cord;
+    }
+
+    public void setCord(Cord cord) {
+        this.cord = cord;
     }
 
     public List<Cell> getNeighboringCells() {
@@ -98,12 +116,12 @@ public class Cell {
         this.waterFill = waterFill;
     }
 
-    public boolean isDrains() {
-        return drains;
+    public boolean isWater() {
+        return isWater;
     }
 
-    public void setDrains(boolean drains) {
-        this.drains = drains;
+    public void setWater(boolean water) {
+        this.isWater = water;
     }
 
     public Cell getDrainsIntoMe() {
@@ -121,8 +139,8 @@ public class Cell {
         Cell cell = (Cell) o;
         return Double.compare(cell.elevation, elevation) == 0 &&
                 Double.compare(cell.waterFill, waterFill) == 0 &&
-                drains == cell.drains &&
-                Objects.equals(cellCenter, cell.cellCenter) &&
+                isWater == cell.isWater &&
+                Objects.equals(cord, cell.cord) &&
                 Objects.equals(neighboringCells, cell.neighboringCells) &&
                 terrainType == cell.terrainType &&
                 Objects.equals(color, cell.color) &&
@@ -132,6 +150,14 @@ public class Cell {
 
     @Override
     public int hashCode() {
-        return Objects.hash(cellCenter, neighboringCells, terrainType, elevation, waterFill, drains, color, tile, drainsIntoMe);
+        return Objects.hash(cord, neighboringCells, terrainType, elevation, waterFill, isWater, color, tile, drainsIntoMe);
+    }
+
+    @Override
+    public int compareTo(@NotNull Object o) {
+        if(o instanceof Cell) {
+            return ((Cell) o).getCord().compareTo(this.getCord());
+        }
+        return 0;
     }
 }

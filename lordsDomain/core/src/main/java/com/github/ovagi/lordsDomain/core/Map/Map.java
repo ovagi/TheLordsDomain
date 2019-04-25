@@ -14,7 +14,6 @@ import pythagoras.f.IDimension;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 public class Map extends GroupLayer {
 
@@ -32,6 +31,9 @@ public class Map extends GroupLayer {
 
         cells = new ArrayList<>();
         Dimension cellSize = new Dimension(size.width() / NUMBER_OF_CELLS_ROW, size.height() / NUMBER_OF_CELLS_COLUMN);
+
+        Cell.setWidth(size.width() / NUMBER_OF_CELLS_ROW);
+        Cell.setHeight(size.height() / NUMBER_OF_CELLS_COLUMN);
 
         for (int i = 0; i < NUMBER_OF_CELLS_COLUMN; i++) {
             for (int j = 0; j < NUMBER_OF_CELLS_ROW; j++) {
@@ -86,13 +88,13 @@ public class Map extends GroupLayer {
                 //cell.setTerrainType(TerrainTypes.values()[ThreadLocalRandom.current().nextInt(TerrainTypes.values().length)]);
 
                 cell.setTile(terrain.getTile(cell.getTerrainType().equals(TerrainTypes.RIVER) ? TerrainTypes.RIVER : TerrainTypes.DESERT, cell.getWaterFill()));
-                setPiece(cell.getCellCenter(), cell);
+                setPiece(cell.getCord(), cell);
             }
         } else {
             for (Cell cell : cells) {
                 //cell.setTerrainType(TerrainTypes.values()[ThreadLocalRandom.current().nextInt(TerrainTypes.values().length)]);
                 cell.setTile(terrain.getTile(cell.getTerrainType(), cell.getElevation()));
-                setPiece(cell.getCellCenter(), cell);
+                setPiece(cell.getCord(), cell);
             }
         }
 
@@ -110,7 +112,7 @@ public class Map extends GroupLayer {
 
     private ImageLayer addCell(Cord at, Cell cell) {
         ImageLayer pview = new ImageLayer(cell.getTile());
-        groupLayer.addAt(pview, cell.getCellCenter().x(), cell.getCellCenter().y());
+        groupLayer.addAt(pview, cell.getCord().x(), cell.getCord().y());
         return pview;
     }
 
