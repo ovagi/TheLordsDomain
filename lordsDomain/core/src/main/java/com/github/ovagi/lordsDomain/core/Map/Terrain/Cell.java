@@ -5,6 +5,7 @@ import playn.core.Tile;
 
 import java.awt.*;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class Cell {
@@ -17,7 +18,7 @@ public class Cell {
     private boolean drains;
     private Color color;
     private Tile tile;
-    private Set<Cell> drainsIntoMe;
+    private Cell drainsIntoMe;
 
     public Cell (Cord cellCenter) {
         this.cellCenter = cellCenter;
@@ -105,11 +106,32 @@ public class Cell {
         this.drains = drains;
     }
 
-    public Set<Cell> getDrainsIntoMe() {
+    public Cell getDrainsIntoMe() {
         return drainsIntoMe;
     }
 
-    public void setDrainsIntoMe(Set<Cell> drainsIntoMe) {
+    public void setDrainsIntoMe(Cell drainsIntoMe) {
         this.drainsIntoMe = drainsIntoMe;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Cell cell = (Cell) o;
+        return Double.compare(cell.elevation, elevation) == 0 &&
+                Double.compare(cell.waterFill, waterFill) == 0 &&
+                drains == cell.drains &&
+                Objects.equals(cellCenter, cell.cellCenter) &&
+                Objects.equals(neighboringCells, cell.neighboringCells) &&
+                terrainType == cell.terrainType &&
+                Objects.equals(color, cell.color) &&
+                Objects.equals(tile, cell.tile) &&
+                Objects.equals(drainsIntoMe, cell.drainsIntoMe);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(cellCenter, neighboringCells, terrainType, elevation, waterFill, drains, color, tile, drainsIntoMe);
     }
 }

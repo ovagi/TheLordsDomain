@@ -23,7 +23,6 @@ public class WaterBodies {
         //Rivers
 //        elev = a 2-d numeric array
         System.out.println("LOG: Starting River Generation");
-        cells.forEach(cell -> cell.setDrainsIntoMe(new HashSet<>()));
         cells.forEach(cell -> cell.setWaterFill(cell.getElevation()));
         //Find Spawn Point of River
             //First find border cells
@@ -58,7 +57,7 @@ public class WaterBodies {
 
         end.setTerrainType(TerrainTypes.RIVER);
 
-        boolean notFinished;
+        boolean notFinished = true;
 
         int timeStamp = 0;
 
@@ -66,31 +65,38 @@ public class WaterBodies {
 
         Cell temp = start;
 
-        do {
-            Cell finalEnd = end;
+        //Bellman ford
+        int numberOfConnections = cells.parallelStream().mapToInt(cell -> cell.getNeighboringCells().size()).sum();
 
-            Cell temp2 = temp;
+        Cell finalEnd1 = end;
+        cells.forEach(
+                    cell -> {
+                            cell.setDrainsIntoMe(cell.getNeighboringCells().parallelStream().min((o1, o2) -> (int) (o1.getElevation() - o2.getElevation())).orElse(
+                                    cell.getNeighboringCells().parallelStream().max(Comparator.comparingInt(o -> o.getCellCenter().compareTo(finalEnd1.getCellCenter()))).get()));
+                            cell.setDrains(true);
+                    });
 
-            temp = temp.getNeighboringCells().stream()
-                    .filter(cell -> cell.getTerrainType().equals(TerrainTypes.RIVER))
-                    .min(((o1, o2) -> (int) (o1.getElevation() - o2.getElevation())))
-                    .orElse(getRandomCell(new ArrayList<>(temp.getNeighboringCells().stream().filter(cell -> !cell.getTerrainType().equals(TerrainTypes.RIVER)).collect(Collectors.toCollection(ArrayList::new)))));
 
-            if(temp == null) {
-                temp = getRandomCell(new ArrayList<>(temp2.getNeighboringCells()));
-            }
+        end.setDrainsIntoMe(end);
+        start.setDrains(true);
 
-            System.out.println("Cell Terrain is: " + temp.getTerrainType());
+            do {
+                System.out.println(++timeStamp);
 
-            temp.setTerrainType(TerrainTypes.RIVER);
+//                if(!temp.getDrainsIntoMe().isDrains()) {
+                    temp = temp.getDrainsIntoMe();
+                    temp.setDrains(true);
+                    temp.setTerrainType(TerrainTypes.RIVER);
 
-            notFinished = temp.getNeighboringCells().parallelStream().noneMatch(cell -> cell.equals(finalEnd));
+//                    if(temp.equals(end)) {
+//                        notFinished = false;
+//                    }
+//                } else {
+//                    cells.forEach(cell -> cell.setTerrainType(TerrainTypes.GRASSLANDS));
+                    temp = getRandomCell(start.getNeighboringCells().parallelStream().filter(Cell::isDrains).collect(Collectors.toList()));
+//                }
 
-            timeStamp++;
-
-            System.out.println("timeStamp = " + timeStamp);
-
-        } while (notFinished && timeStamp != MAX_RIVER_LENGTH);
+            } while (notFinished && timeStamp < MAX_RIVER_LENGTH);
 
         System.out.println("LOG: Ending River Generation");
 
@@ -103,7 +109,7 @@ public class WaterBodies {
 
     }
 
-    private Cell getRandomCell(ArrayList<Cell> cells) {
+    private Cell getRandomCell(List<Cell> cells) {
         if (cells == null) {
             return null;
         }
