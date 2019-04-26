@@ -19,8 +19,8 @@ public class Map extends GroupLayer {
 
     public static final boolean DRAWING_WATER_SHED = false;
 
-    public static final int NUMBER_OF_CELLS_ROW = 128;
-    public static final int NUMBER_OF_CELLS_COLUMN = 128;
+    public static final int NUMBER_OF_CELLS_ROW = 512;
+    public static final int NUMBER_OF_CELLS_COLUMN = 512;
     public static final int NUMBER_OF_CELLS = NUMBER_OF_CELLS_ROW * NUMBER_OF_CELLS_COLUMN;
     public static final float LINE_WIDTH = 2;
 
@@ -31,6 +31,8 @@ public class Map extends GroupLayer {
 
         cells = new ArrayList<>();
         Dimension cellSize = new Dimension(size.width() / NUMBER_OF_CELLS_ROW, size.height() / NUMBER_OF_CELLS_COLUMN);
+
+        System.out.println(cellSize);
 
         Cell.setWidth(size.width() / NUMBER_OF_CELLS_ROW);
         Cell.setHeight(size.height() / NUMBER_OF_CELLS_COLUMN);

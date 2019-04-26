@@ -25,8 +25,6 @@ public class Terrain {
     private static final float HILL_ELEVATION = (float) ThreadLocalRandom.current().nextDouble(5.0/9.0, 7.0/9.0);
     private static final float GRASSLAND_ELEVATION = (float) ThreadLocalRandom.current().nextDouble(2.0/10.0, 3.0/10.0);
 
-    private static final int WATER_SHED_BOTTOM = playn.core.Color.rgb(0, 0, 0);
-    private static final int WATER_SHED_MIDDLE = playn.core.Color.rgb(0, 0, 255);
     private static final int WATER_SHED_TOP = playn.core.Color.rgb(255, 255, 255);
 
     private final Texture tileSetTextures;
@@ -58,7 +56,7 @@ public class Terrain {
 
         //River Gradient
         canvas.setFillGradient(canvas.createGradient(
-                new Gradient.Linear(0, 0, cellSize.width() * 101, cellSize.height(), new int[]{WATER_SHED_BOTTOM, WATER_SHED_MIDDLE, WATER_SHED_TOP}, new float[]{0, .5f, 1})))
+                new Gradient.Linear(0, 0, cellSize.width() * 101, cellSize.height(), new int[]{OCEAN_SHORE_COLOR, WATER_SHED_TOP}, new float[]{OCEAN_HEIGHT, 1})))
                 .fillRect(0, cellSize.height() * 2, cellSize.width() * 101, cellSize.height());
 
         tileSetTextures = canvas.toTexture(Texture.Config.UNMANAGED);
@@ -98,7 +96,6 @@ public class Terrain {
                 tile = tileSetTextures.tile((float) (cellSize.width() * 100 * elevation), cellSize.height(), cellSize.width(), cellSize.height());
                 break;
             case RIVER:
-//                tile = tileSetTextures.tile((float) (cellSize.width() * 100 * elevation), cellSize.height() * 2, cellSize.width(), cellSize.height());
                 tile = tileSetTextures.tile((float) (cellSize.width() * 100 * elevation), cellSize.height() * 2, cellSize.width(), cellSize.height());
                 break;
             case SWAMP:

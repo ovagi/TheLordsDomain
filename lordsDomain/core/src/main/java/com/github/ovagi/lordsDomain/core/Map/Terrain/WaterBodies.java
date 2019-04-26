@@ -2,8 +2,12 @@ package com.github.ovagi.lordsDomain.core.Map.Terrain;
 
 import com.github.ovagi.lordsDomain.core.Map.Cord;
 
+import java.awt.*;
+import java.awt.geom.AffineTransform;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
@@ -15,7 +19,7 @@ public class WaterBodies {
     public static final float OCEAN_HEIGHT = (float) ThreadLocalRandom.current().nextDouble(0, 1.0 / 3.0);
     private static final int MAX_RIVER_LENGTH = 500;
     private static final double RIVER_HEIGHT = (float) ThreadLocalRandom.current().nextDouble(3.0 / 10.0, 4.0 / 10.0);
-    private static final int MIN_RIVERS = 4;
+    private static final int MIN_RIVERS = 1;
     private static final int MAX_RIVERS = 5;
     private static final double MAX_RIVER_TURN_LENGTH = 200;
 
@@ -55,30 +59,30 @@ public class WaterBodies {
         cells.parallelStream().filter(cell -> cell.isWater() && !cell.getTerrainType().equals(TerrainTypes.RIVER) && !cell.getTerrainType().equals(TerrainTypes.OCEAN)).forEach(cell -> cell.setTerrainType(TerrainTypes.RIVER));
 
         //Erosion
-        List<Cell> riverCells = cells.parallelStream().filter(cell -> cell.getTerrainType().equals(TerrainTypes.RIVER)).collect(Collectors.toList());
-        List<Set<Cell>> rivers = new LinkedList<>();
-
-        for (Cell cell: riverCells) {
-            if(rivers.parallelStream().noneMatch(set -> set.contains(cell))) {
-                TreeSet<Cell> set = new TreeSet<>();
-                rivers.add(set);
-                set.add(cell);
-                AtomicBoolean building = new AtomicBoolean(true);
-                while(building.get()) {
-                    building.set(false);
-                    TreeSet<Cell> tempSet = new TreeSet<>(set);
-                    for (Cell cell1 : set) {
-                        cell1.getNeighboringCells().parallelStream()
-                                .filter(cell2 -> cell2.getTerrainType().equals(TerrainTypes.RIVER))
-                                .forEach(cell2 -> {
-                                    tempSet.add(cell2);
-                                    building.set(true);
-                                });
-                    }
-                    set.addAll(tempSet);
-                }
-            }
-        }
+//        List<Cell> riverCells = cells.parallelStream().filter(cell -> cell.getTerrainType().equals(TerrainTypes.RIVER)).collect(Collectors.toList());
+//        List<Set<Cell>> rivers = new LinkedList<>();
+//
+//        for (Cell cell: riverCells) {
+//            if(rivers.parallelStream().noneMatch(set -> set.contains(cell))) {
+//                TreeSet<Cell> set = new TreeSet<>();
+//                rivers.add(set);
+//                set.add(cell);
+//                AtomicBoolean building = new AtomicBoolean(true);
+//                while(building.get()) {
+//                    building.set(false);
+//                    TreeSet<Cell> tempSet = new TreeSet<>(set);
+//                    for (Cell cell1 : set) {
+//                        cell1.getNeighboringCells().parallelStream()
+//                                .filter(cell2 -> cell2.getTerrainType().equals(TerrainTypes.RIVER))
+//                                .forEach(cell2 -> {
+//                                    tempSet.add(cell2);
+//                                    building.set(true);
+//                                });
+//                    }
+//                    set.addAll(tempSet);
+//                }
+//            }
+//        }
 
         System.out.println("LOG: Ending River Generation");
 
