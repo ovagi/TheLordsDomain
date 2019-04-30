@@ -7,6 +7,7 @@ import playn.core.Tile;
 import java.awt.*;
 import java.util.List;
 import java.util.Objects;
+import java.util.StringJoiner;
 
 public class Cell implements Comparable {
 
@@ -16,7 +17,8 @@ public class Cell implements Comparable {
     private List<Cell> neighboringCells;
     private TerrainTypes terrainType;
     private double elevation;
-    private double waterFill;
+    private double temperature;
+    private double humidity;
     private boolean isWater;
     private Color color;
     private Tile tile;
@@ -34,6 +36,9 @@ public class Cell implements Comparable {
     public Cell (Cord cord, List<Cell> neighboringCells, TerrainTypes terrainType) {
         this.cord = cord;
         this.neighboringCells = neighboringCells;
+    }
+
+    public Cell() {
     }
 
     public static double getWidth() {
@@ -108,12 +113,12 @@ public class Cell implements Comparable {
         this.elevation = elevation;
     }
 
-    public double getWaterFill() {
-        return waterFill;
+    public double getHumidity() {
+        return humidity;
     }
 
-    public void setWaterFill(double waterFill) {
-        this.waterFill = waterFill;
+    public void setHumidity(double humidity) {
+        this.humidity = humidity;
     }
 
     public boolean isWater() {
@@ -138,7 +143,7 @@ public class Cell implements Comparable {
         if (o == null || getClass() != o.getClass()) return false;
         Cell cell = (Cell) o;
         return Double.compare(cell.elevation, elevation) == 0 &&
-                Double.compare(cell.waterFill, waterFill) == 0 &&
+                Double.compare(cell.humidity, humidity) == 0 &&
                 isWater == cell.isWater &&
                 Objects.equals(cord, cell.cord) &&
                 Objects.equals(neighboringCells, cell.neighboringCells) &&
@@ -150,7 +155,7 @@ public class Cell implements Comparable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(cord, neighboringCells, terrainType, elevation, waterFill, isWater, color, tile, drainsIntoMe);
+        return Objects.hash(cord, terrainType, elevation, humidity, isWater, color, tile, drainsIntoMe);
     }
 
     @Override
@@ -159,5 +164,18 @@ public class Cell implements Comparable {
             return ((Cell) o).getCord().compareTo(this.getCord());
         }
         return 0;
+    }
+
+    public Cell withWaterFill(int waterFill) {
+        this.humidity = waterFill;
+        return this;
+    }
+
+    public double getTemperature() {
+        return temperature;
+    }
+
+    public void setTemperature(double temperature) {
+        this.temperature = temperature;
     }
 }

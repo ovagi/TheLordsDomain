@@ -1,10 +1,7 @@
 package com.github.ovagi.lordsDomain.core.Map;
 
 import com.github.ovagi.lordsDomain.core.LordsDomain;
-import com.github.ovagi.lordsDomain.core.Map.Terrain.Cell;
-import com.github.ovagi.lordsDomain.core.Map.Terrain.Terrain;
-import com.github.ovagi.lordsDomain.core.Map.Terrain.TerrainTypes;
-import com.github.ovagi.lordsDomain.core.Map.Terrain.WaterBodies;
+import com.github.ovagi.lordsDomain.core.Map.Terrain.*;
 import org.jetbrains.annotations.NotNull;
 import playn.core.Canvas;
 import playn.scene.GroupLayer;
@@ -14,13 +11,14 @@ import pythagoras.f.IDimension;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Map extends GroupLayer {
 
-    public static final boolean DRAWING_WATER_SHED = false;
+    public static final boolean DEBUG = false;
 
-    public static final int NUMBER_OF_CELLS_ROW = 512;
-    public static final int NUMBER_OF_CELLS_COLUMN = 512;
+    public static final int NUMBER_OF_CELLS_ROW = 1024;
+    public static final int NUMBER_OF_CELLS_COLUMN = 1024;
     public static final int NUMBER_OF_CELLS = NUMBER_OF_CELLS_ROW * NUMBER_OF_CELLS_COLUMN;
     public static final float LINE_WIDTH = 2;
 
@@ -82,14 +80,15 @@ public class Map extends GroupLayer {
 
         Terrain terrain = new Terrain(canvas, cellSize);
         terrain.generateBasicTerrain(cells);
-        WaterBodies waterBodies = new WaterBodies(cells);
+        new WaterBodies(cells);
+        new Enviroments(cells);
 
         onDisposed(terrain.onDisposed());
-        if (DRAWING_WATER_SHED) {
+        if (DEBUG) {
             for (Cell cell : cells) {
-                //cell.setTerrainType(TerrainTypes.values()[ThreadLocalRandom.current().nextInt(TerrainTypes.values().length)]);
+                cell.setTerrainType(TerrainTypes.values()[ThreadLocalRandom.current().nextInt(TerrainTypes.values().length)]);
 
-                cell.setTile(terrain.getTile(cell.getTerrainType().equals(TerrainTypes.RIVER) ? TerrainTypes.RIVER : TerrainTypes.DESERT, cell.getWaterFill()));
+                cell.setTile(terrain.getTile(cell.getTerrainType(), 0));
                 setPiece(cell.getCord(), cell);
             }
         } else {
