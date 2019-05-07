@@ -1,0 +1,11 @@
+<module rename-to='lordsDomain'>
+  <inherits name='playn.Scene'/>
+  <inherits name='LordsDomainAssets'/>
+
+  <source path='core'/>
+  <source path='html'/>
+
+  <public path="resources" />
+
+  <entry-point class='com.github.ovagi.lordsDomain.html.LordsDomainHtml'/>
+</module>
